@@ -13,6 +13,8 @@ from camset.layout import Layout
 class Window(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Camset")
+        self.set_default_size(700, 500)
+        self.set_size_request(500, 350)  # Reduced minimum window size for more compact layout
         self.cardname = ""
         layout = Layout(self, dialogs)
         layout.setup_main_container()
@@ -25,31 +27,25 @@ class Window(Gtk.Window):
         self.layout = layout
 
     def clear_and_rebuild(self):
+        # Clear all controls from the control boxes
         intcontrols = self.int_control_box.get_children()
         boolcontrols = self.bool_control_box.get_children()
         menucontrols = self.menu_control_box.get_children()
-        intlabels = self.int_label_box.get_children()
-        boollabels = self.bool_label_box.get_children()
-        menulabels = self.menu_label_box.get_children()
+        
         for item in intcontrols:
             self.int_control_box.remove(item)
         for item in boolcontrols:
             self.bool_control_box.remove(item)
         for item in menucontrols:
             self.menu_control_box.remove(item)
-        for item in menulabels:
-            self.menu_label_box.remove(item)
-        for item in intlabels:
-            self.int_label_box.remove(item)
-        for item in boollabels:
-            self.bool_label_box.remove(item)
+            
         self.read_capabilites()
         if self.read_resolution_capabilites():
             self.layout.setup_resolution()
             self.resolution_selection.set_active(v4l2_control.set_active_resolution())            
         self.show_all()
         v4l2_control.set_sensitivity()
-        
+
     def on_btn_showcam_toggled(self, widget):
         if widget.get_active() and not camwin.props.visible:
             camwin.init_camera_feed(helpers.get_video_resolution(self))
@@ -114,24 +110,18 @@ class Window(Gtk.Window):
                 label_text = str.replace(setting, '_', ' ').title()
                 value = line.split("value=", 1)[1]
                 value = int(value.split(' ', 1)[0])
-                label = Gtk.Label(hexpand = True, vexpand = False)
+                label = Gtk.Label()
                 label.set_text(label_text)
-                label.set_size_request(-1, 35)
-                label.set_halign(Gtk.Align.END)
                 
                 if "int" in line:
-                    self.layout.add_int_item(line, setting, value, v4l2_control.set_int_value)  
-                    self.int_label_box.pack_start(label, False, False, 0)                  
+                    self.layout.add_int_item_with_label(line, setting, value, v4l2_control.set_int_value, label)
                         
                 if "bool" in line: 
-                    self.layout.add_bool_item(setting, value, v4l2_control.set_bool_value)               
-                    label.set_size_request(-1, 25)
-                    self.bool_label_box.pack_start(label, False, False, 0)
+                    self.layout.add_bool_item_with_label(setting, value, v4l2_control.set_bool_value, label)
                 
                 if "menu" in line:
                     menu_value = value
-                    self.layout.add_menu_item(setting, v4l2_control.on_ctrl_combo_changed)
-                    self.menu_label_box.pack_start(label, False, False, 0)
+                    self.layout.add_menu_item_with_label(setting, v4l2_control.on_ctrl_combo_changed, label)
             
             # menu options
             elif line:
@@ -163,7 +153,6 @@ def main():
     pathlib.Path(helpers.get_config_path()).mkdir(parents=True, exist_ok=True)
     camwin.hide()
     win.check_devices()
-    win.resize(win.grid.get_allocation().width, win.grid.get_allocation().height + 20) # hardcoded extra margin seems needed to not show scrollbars, not sure where space is coming from
     win.connect("destroy", Gtk.main_quit)
     win.show_all()
     Gtk.main()

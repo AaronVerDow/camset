@@ -17,6 +17,8 @@ class CamWindow(Gtk.Window):
         self.run_id = 0
 
         Gtk.Window.__init__(self, title="Camera feed")
+        self.set_default_size(640, 480)
+        self.set_size_request(320, 240)  # Minimum reasonable size for camera feed
         self.connect(
             "delete-event", lambda w, e: self.stop_camera_feed() or True
         )  # override delete and just hide window, or widgets will be destroyed
