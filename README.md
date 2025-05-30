@@ -4,6 +4,7 @@ This branch is a fast and loose test of some new features.
 
 * Use ffplay for preview instead of a custom python preview
 * Scale UI better for use in tiling window managers
+* Do not auto open preview, can be overridden with cli arg --preview
 
 # Camset
 **GUI for v4l2-ctl**
