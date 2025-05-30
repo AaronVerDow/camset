@@ -2,6 +2,7 @@ import gi
 import subprocess
 import pathlib
 import os
+import argparse
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -10,12 +11,14 @@ from camset.dialogs import Dialogs
 from camset.helpers import Helpers
 from camset.v4l2control import V4L2Control
 from camset.layout import Layout
+
 class Window(Gtk.Window):
-    def __init__(self):
+    def __init__(self, auto_preview=False):
         Gtk.Window.__init__(self, title="Camset")
         self.set_default_size(700, 500)
         self.set_size_request(500, 350)  # Reduced minimum window size for more compact layout
         self.cardname = ""
+        self.auto_preview = auto_preview
         layout = Layout(self, dialogs)
         layout.setup_main_container()
         layout.setup_boxes()
@@ -71,7 +74,10 @@ class Window(Gtk.Window):
         configfile = helpers.get_config_path() + "/" + self.cardname + ".camset"
         if (os.path.exists(configfile) and self.autoload_checkbutton.get_active() and self.read_resolution_capabilites()):
             dialogs.load_settings_from_file(configfile, None, self, v4l2_control)
-        self.btn_showcam.set_active(True)
+        
+        # Only auto-activate preview if the command line flag was set
+        if self.auto_preview:
+            self.btn_showcam.set_active(True)
 
     def on_resolution_changed(self, _callback):
         if (camwin.props.visible):
@@ -159,6 +165,16 @@ def cleanup_and_quit(widget):
     Gtk.main_quit()
 
 def main():
+    parser = argparse.ArgumentParser(description='GUI for v4l2-ctl camera controls')
+    parser.add_argument('--preview', action='store_true', 
+                       help='Automatically open camera preview when device is selected')
+    args = parser.parse_args()
+    
+    global win, v4l2_control, camwin
+    win = Window(auto_preview=args.preview)
+    v4l2_control = V4L2Control(win)
+    camwin = CamWindow(win, dialogs)
+    
     pathlib.Path(helpers.get_config_path()).mkdir(parents=True, exist_ok=True)
     camwin.hide()
     win.check_devices()
@@ -168,9 +184,10 @@ def main():
 
 helpers = Helpers()
 dialogs = Dialogs()
-win = Window()
-v4l2_control = V4L2Control(win)
-camwin = CamWindow(win, dialogs)
+# These will be initialized in main() now
+win = None
+v4l2_control = None
+camwin = None
 
 if __name__ == "__main__":
     main()
