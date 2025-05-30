@@ -153,11 +153,16 @@ class Window(Gtk.Window):
         if (i > 0):
             self.device_selection.set_active(0)
 
+def cleanup_and_quit(widget):
+    """Clean up resources before quitting the application"""
+    camwin.stop_camera_feed()
+    Gtk.main_quit()
+
 def main():
     pathlib.Path(helpers.get_config_path()).mkdir(parents=True, exist_ok=True)
     camwin.hide()
     win.check_devices()
-    win.connect("destroy", Gtk.main_quit)
+    win.connect("destroy", cleanup_and_quit)
     win.show_all()
     Gtk.main()
 
