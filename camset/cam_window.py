@@ -41,25 +41,27 @@ class CamWindow:
             stderr=subprocess.PIPE,
         )
         out, err = process.communicate()
-        
+
         if process.returncode == 0:
             # Map v4l2 pixel format names to ffplay format names
+
+            # These can be dynamically determined using string manipulation. Both ffplay and v4l2 give the same name within perenthesis. I don't see a reliable machine output.
             format_mapping = {
-                'MJPG': 'mjpeg',
-                'YUYV': 'yuyv422',
-                'YUY2': 'yuyv422',
-                'UYVY': 'uyvy422',
-                'RGB24': 'rgb24',
-                'BGR24': 'bgr24',
-                'RGB565': 'rgb565le',
-                'RGB555': 'rgb555le',
-                'GREY': 'gray',
-                'Y16': 'gray16le',
+                "MJPG": "mjpeg",
+                "YUYV": "yuyv422",
+                "YUY2": "yuyv422",
+                "UYVY": "uyvy422",
+                "RGB24": "rgb24",
+                "BGR24": "bgr24",
+                "RGB565": "rgb565le",
+                "RGB555": "rgb555le",
+                "GREY": "gray",
+                "Y16": "gray16le",
             }
-            
+
             # Get the correct ffplay format name
             ffplay_format = format_mapping.get(pixelformat, pixelformat.lower())
-            
+
             # Start ffplay with the video device and pixel format
             try:
                 args = ["ffplay", "-f", "v4l2", "-input_format", ffplay_format, card]
