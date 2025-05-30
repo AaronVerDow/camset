@@ -10,7 +10,8 @@ class CamWindow(Gtk.Window):
     def __init__(self, win, dialogs):
         self.win = win
         self.dialogs = dialogs
-        self.videosize = 100
+        self.original_frame_width = 0
+        self.original_frame_height = 0
         self.cap = None
         self.run_id = 0
 
@@ -28,45 +29,40 @@ class CamWindow(Gtk.Window):
         self.run_id = 0
 
     def setup_video(self):
-        fixed = Gtk.Fixed()
-        self.add(fixed)
-        self.image_area = Gtk.Box() 
-        self.videobox = Gtk.Box(spacing=10, orientation=Gtk.Orientation.VERTICAL)
+        # Use a scrolled window that will automatically handle scaling
+        scrolled = Gtk.ScrolledWindow()
+        scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled.set_hexpand(True)
+        scrolled.set_vexpand(True)
+        
+        # Create image widget that will scale to fit
         self.image = Gtk.Image()
-        self.videobox.add(self.image_area)
-        self.image_area.add(self.image)
-        self.image_area.show_all()
-        return fixed
+        self.image.set_hexpand(True)
+        self.image.set_vexpand(True)
+        
+        # Add image to a viewport for proper scaling
+        viewport = Gtk.Viewport()
+        viewport.add(self.image)
+        scrolled.add(viewport)
+        
+        self.add(scrolled)
+        return scrolled
 
-    def setup_video_controls(self, fixed):
-        self.vidcontrolgrid = Gtk.Grid()
-        self.vidcontrolgrid.set_column_homogeneous(True)
-        self.label = Gtk.Label(label="Camera feed scale (percentage)")  
-        self.adj = Gtk.Adjustment(value = self.videosize, lower = 1, upper = 100, step_increment = 1, page_increment = 1, page_size=0)
-        self.scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=self.adj)
-        self.scale.set_digits(0)
-        self.scale.set_value_pos(Gtk.PositionType.RIGHT)
-        self.scale.set_margin_end(20)
-        self.scale.connect("value-changed", self.set_video_size)
-        self.vidcontrolgrid.add(self.label)
-        self.vidcontrolgrid.add(self.scale)
-        fixed.put(self.vidcontrolgrid, 30, 30)
-        fixed.put(self.videobox, 0, 90)
+    def setup_video_controls(self, container):
+        # No controls needed for auto-scale only mode
         self.show_all()
-
-    def set_video_size(self, callback):
-        self.videosize = callback.get_value()
 
     def show_frame(self):
         if self.cap is None:
             return False
         ret, frame = self.cap.read()
         if frame is not None:
-            width = int(frame.shape[1] * self.videosize / 100)
-            height = int(frame.shape[0] * self.videosize / 100)
-            dim = (width, height)
-            # TODO: resizing video and window this way is very cpu intensive for large resolutions, should be improved or removed
-            frame = cv2.resize(frame, dim, interpolation = cv2.INTER_CUBIC)
+            # Store original frame dimensions
+            if self.original_frame_width == 0:
+                self.original_frame_width = frame.shape[1]
+                self.original_frame_height = frame.shape[0]
+            
+            # Don't resize the frame - let GTK handle the scaling
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # needed for proper color representation in gtk
             pixbuf = GdkPixbuf.Pixbuf.new_from_data(frame.tostring(),
                                                 GdkPixbuf.Colorspace.RGB,
@@ -75,8 +71,27 @@ class CamWindow(Gtk.Window):
                                                 frame.shape[1],
                                                 frame.shape[0],
                                                 frame.shape[2]*frame.shape[1]) # last argument is "rowstride (int) - Distance in bytes between row starts" (??)
-            self.image.set_from_pixbuf(pixbuf.copy())
-        self.resize(1, 1)
+            
+            # Get the current window size
+            window_width = self.get_allocated_width()
+            window_height = self.get_allocated_height()
+            
+            if window_width > 1 and window_height > 1:
+                # Calculate scaled size maintaining aspect ratio
+                scale_x = window_width / frame.shape[1]
+                scale_y = window_height / frame.shape[0]
+                scale = min(scale_x, scale_y)
+                
+                new_width = int(frame.shape[1] * scale)
+                new_height = int(frame.shape[0] * scale)
+                
+                # Scale the pixbuf to fit the window
+                scaled_pixbuf = pixbuf.scale_simple(new_width, new_height, GdkPixbuf.InterpType.BILINEAR)
+                self.image.set_from_pixbuf(scaled_pixbuf)
+            else:
+                # Fallback to original size if window size not available
+                self.image.set_from_pixbuf(pixbuf.copy())
+                
         return True
 
     def start_camera_feed(self, pixelformat, vfeedwidth, vfeedheight, fourcode):
