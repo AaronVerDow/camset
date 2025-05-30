@@ -6,6 +6,7 @@
   v4l-utils,
   wrapGAppsHook3,
   lib,
+  ffmpeg,
 }:
 
 python3Packages.buildPythonApplication {
@@ -25,7 +26,6 @@ python3Packages.buildPythonApplication {
 
   dependencies = with python3Packages; [
     pygobject3
-    opencv-python
   ];
 
   dontWrapGApps = true;
@@ -33,7 +33,7 @@ python3Packages.buildPythonApplication {
   preFixup = ''
     makeWrapperArgs+=(
       "''${gappsWrapperArgs[@]}"
-      --prefix PATH : ${lib.makeBinPath [ v4l-utils ]}
+      --prefix PATH : ${lib.makeBinPath [ v4l-utils ffmpeg ]}
     )
   '';
 

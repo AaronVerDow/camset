@@ -1,5 +1,4 @@
 import os
-import cv2
 import subprocess
 
 class Helpers:     
@@ -16,8 +15,7 @@ class Helpers:
         pixelformat = text[0].split(" - ", 1)[0]
         vfeedwidth = resolution.split("x", 1)[0]
         vfeedheight = resolution.split("x", 1)[1]
-        fourcode = cv2.VideoWriter_fourcc(*'{}'.format(pixelformat))
-        return [pixelformat, vfeedwidth, vfeedheight, fourcode]
+        return [pixelformat, vfeedwidth, vfeedheight, None]
 
     def get_card_name(self, card):
         try:

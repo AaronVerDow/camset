@@ -24,9 +24,9 @@
             python3
             python3Packages.setuptools
             python3Packages.pygobject3
-            python3Packages.opencv-python
             gobject-introspection
             v4l-utils
+            ffmpeg
             
             # Development tools
             python3Packages.pip

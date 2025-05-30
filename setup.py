@@ -22,7 +22,7 @@ setuptools.setup(
         ('share/icons', ['res/camset.png']),
     ],
     python_requires='>=3.0, <4',
-    install_requires=['opencv-python', 'PyGObject'],
+    install_requires=['PyGObject'],
     entry_points={
         'console_scripts': [
             'camset=camset.camset:main',

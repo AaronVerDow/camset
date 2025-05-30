@@ -15,9 +15,10 @@ The application is WIP in early development, but in a functional state. Testing,
 Python 3  
 pip  
 v4l2-ctl  
-pkg-config
+pkg-config  
+ffmpeg (for ffplay)
 
-If running from source (not using the camset pip package) you will also need gi (PyGObject @ pip) and OpenCV (opencv-python @ pip)
+If running from source (not using the camset pip package) you will also need gi (PyGObject @ pip)
 
 ## Installation
 
