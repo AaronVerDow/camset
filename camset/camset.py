@@ -76,7 +76,11 @@ class Window(Gtk.Window):
     def on_resolution_changed(self, _callback):
         if (camwin.props.visible):
             camwin.stop_camera_feed()
-        self.btn_showcam.set_active(True)
+            # Restart with new resolution
+            camwin.init_camera_feed(helpers.get_video_resolution(self))
+        elif self.btn_showcam.get_active():
+            # If the button is active but camera isn't visible, start it with new resolution
+            camwin.init_camera_feed(helpers.get_video_resolution(self))
 
     def read_resolution_capabilites(self):
         outputread = subprocess.run(['v4l2-ctl', '-d', self.card, '--list-formats-ext'], check=True, universal_newlines=True, stdout=subprocess.PIPE)

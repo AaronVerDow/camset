@@ -25,14 +25,17 @@ class CamWindow:
         card = self.win.card
 
         # Set the video format using v4l2-ctl
+        args = [
+            "v4l2-ctl",
+            "-d",
+            card,
+            "-v",
+            "height={0},width={1},pixelformat={2}".format(vfeedheight, vfeedwidth, pixelformat),
+        ]
+
+        print(" ".join(args))
         process = subprocess.Popen(
-            [
-                "v4l2-ctl",
-                "-d",
-                card,
-                "-v",
-                "height={0},width={1},pixelformat={2}".format(vfeedheight, vfeedwidth, pixelformat),
-            ],
+            args,
             universal_newlines=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -40,12 +43,31 @@ class CamWindow:
         out, err = process.communicate()
         
         if process.returncode == 0:
-            # Start ffplay with the video device
+            # Map v4l2 pixel format names to ffplay format names
+            format_mapping = {
+                'MJPG': 'mjpeg',
+                'YUYV': 'yuyv422',
+                'YUY2': 'yuyv422',
+                'UYVY': 'uyvy422',
+                'RGB24': 'rgb24',
+                'BGR24': 'bgr24',
+                'RGB565': 'rgb565le',
+                'RGB555': 'rgb555le',
+                'GREY': 'gray',
+                'Y16': 'gray16le',
+            }
+            
+            # Get the correct ffplay format name
+            ffplay_format = format_mapping.get(pixelformat, pixelformat.lower())
+            
+            # Start ffplay with the video device and pixel format
             try:
+                args = ["ffplay", "-f", "v4l2", "-input_format", ffplay_format, card]
+                print(" ".join(args))
                 self.ffplay_process = subprocess.Popen(
-                    ["ffplay", "-f", "v4l2", card],
+                    args,
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    stderr=subprocess.DEVNULL,
                 )
                 return 1  # Success
             except FileNotFoundError:
@@ -74,18 +96,17 @@ class CamWindow:
     # Keep these methods for compatibility but make them no-ops
     def hide(self):
         self.stop_camera_feed()
-    
+
     def set_title(self, title):
         pass
-    
+
     @property
     def props(self):
         class Props:
             @property
             def visible(self):
                 return self.ffplay_process is not None and self.ffplay_process.poll() is None
-        
+
         props_instance = Props()
         props_instance.ffplay_process = self.ffplay_process
         return props_instance
-
