@@ -126,23 +126,23 @@ class Layout:
         self.win.main_box.pack_start(self.win.warningcontainer, False, False, 0)
         self.win.main_box.pack_start(device_row, False, False, 0)
         
-        # Create controls sections - no more separate label/control boxes
+        # Slider controls first (need most space)
+        int_frame = Gtk.Frame(label="Slider Controls")
+        int_frame.set_margin_top(5)
+        int_frame.add(self.win.int_control_box)
+        self.win.main_box.pack_start(int_frame, True, True, 0)  # Allow sliders to expand
+        
+        # Dropdown controls second
         menu_frame = Gtk.Frame(label="Dropdown Controls")
         menu_frame.set_margin_top(5)
         menu_frame.add(self.win.menu_control_box)
         self.win.main_box.pack_start(menu_frame, False, False, 0)
         
-        # Boolean/Switch controls second
+        # Switch controls last
         bool_frame = Gtk.Frame(label="Switch Controls")
         bool_frame.set_margin_top(5)
         bool_frame.add(self.win.bool_control_box)
         self.win.main_box.pack_start(bool_frame, False, False, 0)
-        
-        # Slider controls last (need most space)
-        int_frame = Gtk.Frame(label="Slider Controls")
-        int_frame.set_margin_top(5)
-        int_frame.add(self.win.int_control_box)
-        self.win.main_box.pack_start(int_frame, True, True, 0)  # Allow sliders to expand
 
     def setup_resolution(self):
         # Create horizontal box for resolution label and control
