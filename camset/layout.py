@@ -152,12 +152,12 @@ class Layout:
         label.set_text("Video Resolution")
         label.set_halign(Gtk.Align.END)
         label.set_valign(Gtk.Align.CENTER)
-        label.set_size_request(120, 25)
+        label.set_size_request(180, 25)  # Increased to 180 for more uniform appearance
         hbox.pack_start(label, False, False, 0)
         
         self.win.resolution_selection = Gtk.ComboBox()
         self.win.resolution_selection.set_hexpand(True)
-        self.win.resolution_selection.set_size_request(-1, 30)  # Reduce height
+        self.win.resolution_selection.set_size_request(300, 30)  # Set consistent minimum width
         cell = Gtk.CellRendererText()
         self.win.resolution_selection.pack_start(cell, True)
         self.win.resolution_selection.add_attribute(cell, 'text', 0)
@@ -213,13 +213,13 @@ class Layout:
         # Add the label
         label.set_halign(Gtk.Align.END)
         label.set_valign(Gtk.Align.CENTER) 
-        label.set_size_request(120, 25)
+        label.set_size_request(180, 25)  # Increased to 180 for more uniform appearance
         hbox.pack_start(label, False, False, 0)
         
         # Create the combobox
         self.win.ctrl_combobox = Gtk.ComboBox()
         self.win.ctrl_combobox.set_hexpand(True)
-        self.win.ctrl_combobox.set_size_request(-1, 30)
+        self.win.ctrl_combobox.set_size_request(300, 30)  # Set consistent minimum width
         self.win.ctrl_store = Gtk.ListStore(str)
         cell = Gtk.CellRendererText()
         self.win.ctrl_combobox.pack_start(cell, True)
@@ -238,7 +238,7 @@ class Layout:
         # Add the label
         label.set_halign(Gtk.Align.END)
         label.set_valign(Gtk.Align.CENTER)
-        label.set_size_request(120, 25)
+        label.set_size_request(180, 25)  # Increased to 180 for more uniform appearance
         hbox.pack_start(label, False, False, 0)
         
         # Create the slider
@@ -253,7 +253,7 @@ class Layout:
         scale.set_digits(0)
         scale.set_value_pos(Gtk.PositionType.RIGHT)
         scale.set_hexpand(True)
-        scale.set_size_request(200, 30)
+        scale.set_size_request(300, 30)  # Set consistent minimum width to match dropdowns
         scale.connect("value-changed", action, setting)
         hbox.pack_start(scale, True, True, 0)
         
@@ -267,7 +267,7 @@ class Layout:
         # Add the label
         label.set_halign(Gtk.Align.END)
         label.set_valign(Gtk.Align.CENTER)
-        label.set_size_request(120, 25)
+        label.set_size_request(180, 25)  # Increased to 180 for more uniform appearance
         hbox.pack_start(label, False, False, 0)
         
         # Create the switch
