@@ -60,6 +60,9 @@ class Layout:
         self.win.devicecontrolbox.pack_start(self.win.device_selection, True, True, 0)
         self.win.store = Gtk.ListStore(str)
         cell = Gtk.CellRendererText()
+        # Allow text to be ellipsized when the dropdown is too narrow
+        cell.set_property("ellipsize", 3)  # PANGO_ELLIPSIZE_END
+        cell.set_property("width-chars", 10)  # Minimum character width before ellipsizing
         self.win.device_selection.pack_start(cell, True)
         self.win.device_selection.add_attribute(cell, "text", 0)
         self.win.device_selection.set_model(self.win.store)
