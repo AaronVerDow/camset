@@ -191,13 +191,33 @@ class Layout:
         step = line.split("step=", 1)[1]
         step = int(step.split(" ", 1)[0])
         adj = Gtk.Adjustment(value=value, lower=lower, upper=upper, step_increment=step, page_increment=1, page_size=0)
+        
+        # Create a horizontal box to hold the slider and value label
+        slider_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        
         scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
         scale.set_digits(0)
-        scale.set_value_pos(Gtk.PositionType.RIGHT)
+        scale.set_draw_value(False)  # Hide built-in value display
         scale.set_hexpand(True)
         scale.set_size_request(200, WIDGET_HEIGHT)  # Set minimum width and reduce height
-        scale.connect("value-changed", action, setting)
-        self.win.int_control_box.pack_start(scale, True, True, 0)
+        
+        # Create a fixed-width label for the value
+        value_label = Gtk.Label()
+        value_label.set_text(str(int(value)))
+        value_label.set_size_request(50, -1)  # Fixed width for consistent alignment
+        value_label.set_halign(Gtk.Align.END)
+        
+        # Update the label when slider changes
+        def on_value_changed(scale, setting, label):
+            label.set_text(str(int(scale.get_value())))
+            action(scale, setting)
+        
+        scale.connect("value-changed", on_value_changed, setting, value_label)
+        
+        slider_box.pack_start(scale, True, True, 0)
+        slider_box.pack_start(value_label, False, False, 0)
+        
+        self.win.int_control_box.pack_start(slider_box, True, True, 0)
 
     def add_bool_item(self, setting, value, action):
         switch = Gtk.Switch()
@@ -253,13 +273,33 @@ class Layout:
         step = line.split("step=", 1)[1]
         step = int(step.split(" ", 1)[0])
         adj = Gtk.Adjustment(value=value, lower=lower, upper=upper, step_increment=step, page_increment=1, page_size=0)
+        
+        # Create a horizontal box to hold the slider and value label
+        slider_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        
         scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
         scale.set_digits(0)
-        scale.set_value_pos(Gtk.PositionType.RIGHT)
+        scale.set_draw_value(False)  # Hide built-in value display
         scale.set_hexpand(True)
         scale.set_size_request(MIN_WIDTH, WIDGET_HEIGHT)  # Set consistent minimum width to match dropdowns
-        scale.connect("value-changed", action, setting)
-        hbox.pack_start(scale, True, True, 0)
+        
+        # Create a fixed-width label for the value
+        value_label = Gtk.Label()
+        value_label.set_text(str(int(value)))
+        value_label.set_size_request(50, -1)  # Fixed width for consistent alignment
+        value_label.set_halign(Gtk.Align.END)
+        
+        # Update the label when slider changes
+        def on_value_changed(scale, setting, label):
+            label.set_text(str(int(scale.get_value())))
+            action(scale, setting)
+        
+        scale.connect("value-changed", on_value_changed, setting, value_label)
+        
+        slider_box.pack_start(scale, True, True, 0)
+        slider_box.pack_start(value_label, False, False, 0)
+        
+        hbox.pack_start(slider_box, True, True, 0)
 
         # Add the horizontal box to the int control box
         self.win.int_control_box.pack_start(hbox, False, False, 0)
