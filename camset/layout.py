@@ -57,15 +57,12 @@ class Layout:
         self.win.device_selection.set_hexpand(True)
         # Reduce the height of the combobox
         self.win.device_selection.set_size_request(-1, WIDGET_HEIGHT)
-        self.win.label = Gtk.Label(label="Device")
-        self.win.label.set_halign(Gtk.Align.START)
         self.win.devicecontrolbox.pack_start(self.win.device_selection, True, True, 0)
         self.win.store = Gtk.ListStore(str)
         cell = Gtk.CellRendererText()
         self.win.device_selection.pack_start(cell, True)
         self.win.device_selection.add_attribute(cell, "text", 0)
         self.win.device_selection.set_model(self.win.store)
-        self.win.devicelabelbox.pack_start(self.win.label, False, False, 0)
 
     def setup_buttons(self):
         # Create a horizontal box for buttons
@@ -124,7 +121,6 @@ class Layout:
     def setup_grid(self):
         # Create device selection row
         device_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=MARGIN)
-        device_row.pack_start(self.win.devicelabelbox, False, False, 0)
         device_row.pack_start(self.win.devicecontrolbox, True, True, 0)
         device_row.pack_start(self.win.button_box, False, False, 0)
 
