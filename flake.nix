@@ -41,19 +41,10 @@
           ];
           
           shellHook = ''
-            echo "🎥 Camset Development Environment"
-            echo "================================"
-            echo ""
-            echo "Build and test commands:"
-            echo "  nix build                    # Build the package"
-            echo "  nix run                      # Run camset directly"
-            echo "  python setup.py develop      # Install in development mode"
             echo "  python -m camset.camset      # Run from source"
-            echo ""
-            echo "Make sure you have:"
-            echo "  - A webcam connected (check with: v4l2-ctl --list-devices)"
-            echo "  - X11 display available (for GUI)"
-            echo ""
+
+            # fix for dialog boxes, normally handled by gtk wrapper
+            export GSETTINGS_SCHEMA_DIR="${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}/glib-2.0/schemas";
           '';
         };
 
