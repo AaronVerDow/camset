@@ -81,9 +81,10 @@ class Layout:
         self.win.button_box.pack_start(self.win.btn_showcam, False, False, 0)
 
     def setup_warning_container(self):
-        self.win.warningcontainer = Gtk.Box(hexpand=True)
-        self.win.warning = Gtk.Revealer(hexpand=True)
-        self.win.warning.set_transition_type(Gtk.RevealerTransitionType.CROSSFADE)
+        # To test warning container remove ffplay from $PATH and try to launch preview
+        self.win.warningcontainer = Gtk.Box()
+        self.win.warning = Gtk.Revealer()
+        self.win.warning.set_transition_type(Gtk.RevealerTransitionType.SLIDE_DOWN)
         self.win.warning.props.transition_duration = 1250
         self.win.warning.set_reveal_child(False)
         self.win.warningmessage = Gtk.TextView()
