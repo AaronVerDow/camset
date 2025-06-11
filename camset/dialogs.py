@@ -4,15 +4,29 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
 class Dialogs:
+    def __init__(self):
+        self.timeout_id = None
+    
     def hide_message(self, win):
         win.warning.set_reveal_child(False)
+        if self.timeout_id:
+            GLib.source_remove(self.timeout_id)
+            self.timeout_id = None
+        return False  # Return False to remove the timeout
 
     def show_message(self, message, error, win):
+        # Cancel any existing timeout
+        if self.timeout_id:
+            GLib.source_remove(self.timeout_id)
+            self.timeout_id = None
+            
         win.warningmessage.get_buffer().set_text("")
         color = "<span foreground='#FF0000'>" if error else "<span foreground='#00FF00'>"
         win.warningmessage.get_buffer().insert_markup(win.warningmessage.get_buffer().get_end_iter(), color + message + "</span>", -1)
         win.warning.set_reveal_child(True)
-        GLib.timeout_add_seconds(2.5, self.hide_message, win)
+        
+        # Set timeout to auto-hide after 4 seconds (increased from 2.5 for better UX)
+        self.timeout_id = GLib.timeout_add_seconds(4, self.hide_message, win)
 
     def load_settings_from_file(self, filename, dialog, win, v4l2_control):
         card = win.card

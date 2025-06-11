@@ -85,19 +85,51 @@ class Layout:
 
     def setup_warning_container(self):
         # To test warning container remove ffplay from $PATH and try to launch preview
-        self.win.warningcontainer = Gtk.Box()
+        self.win.warningcontainer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.win.warning = Gtk.Revealer()
         self.win.warning.set_transition_type(Gtk.RevealerTransitionType.SLIDE_DOWN)
         self.win.warning.props.transition_duration = 1250
         self.win.warning.set_reveal_child(False)
+        
+        # Create a header with close button
+        warning_header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        warning_header.set_margin_start(MARGIN)
+        warning_header.set_margin_end(MARGIN)
+        warning_header.set_margin_top(MARGIN // 2)
+        
+        # Add a close button
+        close_button = Gtk.Button()
+        close_button.set_relief(Gtk.ReliefStyle.NONE)
+        close_button.set_size_request(20, 20)
+        close_icon = Gtk.Image.new_from_icon_name("window-close", Gtk.IconSize.SMALL_TOOLBAR)
+        close_button.set_image(close_icon)
+        close_button.set_halign(Gtk.Align.END)
+        close_button.connect("clicked", lambda btn: self.dialogs.hide_message(self.win))
+        
+        warning_header.pack_end(close_button, False, False, 0)
+        
+        # Create scrolled window for the message
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scrolled_window.set_size_request(-1, 80)  # Fixed height to prevent window growth
+        scrolled_window.set_margin_start(MARGIN)
+        scrolled_window.set_margin_end(MARGIN)
+        scrolled_window.set_margin_bottom(MARGIN // 2)
+        
         self.win.warningmessage = Gtk.TextView()
         self.win.warningmessage.set_editable(False)
-        self.win.warningmessage.set_left_margin(MARGIN)
-        self.win.warningmessage.set_right_margin(MARGIN)
-        self.win.warningmessage.set_top_margin(MARGIN / 2)
-        self.win.warningmessage.set_bottom_margin(MARGIN / 2)
-        self.win.warningmessage.props.halign = Gtk.Align.CENTER
-        self.win.warning.add(self.win.warningmessage)
+        self.win.warningmessage.set_wrap_mode(Gtk.WrapMode.WORD)  # Enable word wrapping
+        self.win.warningmessage.set_cursor_visible(False)
+        self.win.warningmessage.props.halign = Gtk.Align.FILL
+        
+        scrolled_window.add(self.win.warningmessage)
+        
+        # Create container for header and message
+        warning_content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        warning_content.pack_start(warning_header, False, False, 0)
+        warning_content.pack_start(scrolled_window, False, False, 0)
+        
+        self.win.warning.add(warning_content)
         self.win.warningcontainer.add(self.win.warning)
 
     def setup_toolbar(self, path, v4l2_control):
